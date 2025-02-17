@@ -1,7 +1,9 @@
 name: Create Branch from Jira Issue
+
 on:
   issues:
     types: [opened]
+  workflow_dispatch:  # 수동 실행 가능하도록 추가
 
 jobs:
   create-branch:

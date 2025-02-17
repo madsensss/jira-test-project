@@ -1,9 +1,8 @@
 name: Create Branch from Jira Issue
 
 on:
-  issues:
-    types: [opened]
-  workflow_dispatch:  # 수동 실행 가능하도록 추가
+  repository_dispatch:
+    types: [jira-issue]
 
 jobs:
   create-branch:
@@ -12,12 +11,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Create branch
+      - name: Create branch from Jira issue
         run: |
-          ISSUE_KEY=$(echo "${{ github.event.issue.title }}" | grep -oE '[A-Z]+-[0-9]+')
-          BRANCH_NAME="feature/${ISSUE_KEY}-$(echo "${{ github.event.issue.title }}" | tr ' ' '-')"
+          ISSUE_KEY=$(echo "${{ github.event.client_payload.issue.key }}" | grep -oE '[A-Z]+-[0-9]+')
+          ISSUE_TITLE=$(echo "${{ github.event.client_payload.issue.fields.summary }}" | tr ' ' '-')
+          BRANCH_NAME="feature/${ISSUE_KEY}-${ISSUE_TITLE}"
           git checkout -b $BRANCH_NAME
           git push origin $BRANCH_NAME
 
     env:
-      GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,21 @@
+name: Create Branch from Jira Issue
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create branch
+        run: |
+          ISSUE_KEY=$(echo "${{ github.event.issue.title }}" | grep -oE '[A-Z]+-[0-9]+')
+          BRANCH_NAME="feature/${ISSUE_KEY}-$(echo "${{ github.event.issue.title }}" | tr ' ' '-')"
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
